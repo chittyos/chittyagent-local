@@ -1,0 +1,38 @@
+# ChittyConnect Configuration for chittyagent-cleaner
+service:
+  name: chittyagent-cleaner
+  display_name: ChittyAgent Cleaner
+  type: local-agent
+  tier: 3
+  category: operations
+  organization: CHITTYOS
+  description: Automated disk cleanup agent for local macOS and ChittyOS volume
+
+deployment:
+  type: launchd
+  agents:
+    - label: com.chittyos.cleaner.local
+      script: scripts/local-cleanup.sh
+      interval: 1800
+    - label: com.chittyos.cleaner.volume
+      script: scripts/volume-cleanup.sh
+      interval: 3600
+    - label: com.chittyos.cleaner.kondo
+      script: scripts/kondo.sh
+      interval: 21600
+
+capabilities:
+  - local-disk-cleanup
+  - volume-cleanup
+  - pattern-analysis
+  - recommendations
+
+github:
+  repository: CHITTYOS/chittyagent-cleaner
+
+monitoring:
+  logs:
+    local: /tmp/chittyos-cleaner-local.out
+    volume: /tmp/chittyos-cleaner-volume.out
+    kondo: /tmp/chittyos-cleaner-kondo.out
+  insights: ~/.chittyos/insights/recommendations.md

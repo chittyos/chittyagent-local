@@ -1,0 +1,88 @@
+{
+  "name": "cleaner",
+  "version": "2.0.0",
+  "description": "Automated disk cleanup agent for ChittyOS ecosystem",
+  "tier": 3,
+  "category": "operations",
+  "status": "active",
+  "skills": [
+    {
+      "name": "local-cleanup",
+      "description": "Cleans local macOS disk caches, logs, and temporary files",
+      "script": "scripts/local-cleanup.sh",
+      "triggers": ["interval:1800", "threshold:60%", "critical:75%"],
+      "targets": [
+        "CloudKit cache",
+        "Browser caches (Chrome, Safari, Firefox)",
+        "npm/pnpm caches",
+        "NPX cache",
+        "Wrangler logs",
+        "Xcode DerivedData",
+        "Docker pruning",
+        "Claude logs/debug"
+      ]
+    },
+    {
+      "name": "volume-cleanup",
+      "description": "Cleans ChittyOS development volume (/Volumes/chitty)",
+      "script": "scripts/volume-cleanup.sh",
+      "triggers": ["interval:3600", "threshold:70%", "critical:85%"],
+      "targets": [
+        "Stale node_modules (>7 days)",
+        ".wrangler caches (>3 days)",
+        "Temp files (>14 days)",
+        "Orphaned lockfiles"
+      ]
+    },
+    {
+      "name": "kondo",
+      "description": "Proactive disk organization - analyzes patterns and generates recommendations",
+      "script": "scripts/kondo.sh",
+      "triggers": ["interval:21600"],
+      "outputs": [
+        "~/.chittyos/insights/recommendations.md",
+        "~/.chittyos/insights/kondo.log",
+        "Weekly summaries"
+      ]
+    }
+  ],
+  "launchAgents": [
+    {
+      "label": "com.chittyos.cleaner.local",
+      "skill": "local-cleanup",
+      "interval": 1800,
+      "script": "scripts/local-cleanup.sh",
+      "priority": 10
+    },
+    {
+      "label": "com.chittyos.cleaner.volume",
+      "skill": "volume-cleanup",
+      "interval": 3600,
+      "script": "scripts/volume-cleanup.sh",
+      "priority": 10
+    },
+    {
+      "label": "com.chittyos.cleaner.kondo",
+      "skill": "kondo",
+      "interval": 21600,
+      "script": "scripts/kondo.sh",
+      "priority": 15
+    }
+  ],
+  "config": {
+    "local": {
+      "threshold": 60,
+      "critical": 75
+    },
+    "volume": {
+      "threshold": 70,
+      "critical": 85,
+      "nodeModulesAgeDays": 7,
+      "wranglerCacheAgeDays": 3,
+      "tempFileAgeDays": 14
+    }
+  },
+  "dependencies": [],
+  "maintainer": "ChittyOS",
+  "repository": "https://github.com/CHITTYOS/chittyagent-local"
+}
